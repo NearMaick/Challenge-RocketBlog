@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 
 import Prismic from '@prismicio/client';
+import Link from 'next/link';
 
 import { useRouter } from 'next/router';
 import { getPrismicClient } from '../../services/prismic';
@@ -35,9 +36,10 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  preview: boolean;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ post, preview }: PostProps): JSX.Element {
   // console.log(JSON.stringify(post, null, 2));
   // console.log(estimatedReadTime);
 
@@ -101,6 +103,13 @@ export default function Post({ post }: PostProps): JSX.Element {
           </div>
         </article>
         <Comments />
+        {preview && (
+          <aside>
+            <Link href="/api/exit-preview">
+              <a>Sair do modo Preview</a>
+            </Link>
+          </aside>
+        )}
       </main>
     </>
   );
@@ -126,8 +135,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async content => {
-  const { slug } = content.params;
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+}) => {
+  const { slug } = params;
 
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('posts', String(slug), {});
@@ -135,6 +147,7 @@ export const getStaticProps: GetStaticProps = async content => {
   return {
     props: {
       post: response,
+      preview,
     },
   };
 };
