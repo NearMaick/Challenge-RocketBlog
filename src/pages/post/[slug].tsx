@@ -71,20 +71,25 @@ export default function Post({ post }: PostProps): JSX.Element {
         <article className={styles.post}>
           <h1>{post.data.title}</h1>
           <div className={styles.postHeading}>
-            <time>
-              <FiCalendar />
-              {format(new Date(post.first_publication_date), 'dd MMM yyyy', {
-                locale: ptBR,
-              })}
-            </time>
-            <h2>
-              <FiUser />
-              {post.data.author}
-            </h2>
-            <span>
-              <FiClock />
-              {`${estimatedReadTime} min`}
-            </span>
+            <div>
+              <time>
+                <FiCalendar />
+                {format(new Date(post.first_publication_date), 'dd MMM yyyy', {
+                  locale: ptBR,
+                })}
+              </time>
+              <h2>
+                <FiUser />
+                {post.data.author}
+              </h2>
+              <span>
+                <FiClock />
+                {`${estimatedReadTime} min`}
+              </span>
+            </div>
+            <div>
+              <time>*editado em 19 out 2021, às 12:00</time>
+            </div>
           </div>
           <div className={styles.postContent}>
             {post.data.content.map(cont => (
@@ -98,8 +103,19 @@ export default function Post({ post }: PostProps): JSX.Element {
               </Fragment>
             ))}
           </div>
+          <div className={styles.postLink}>
+            <a href="#none">
+              <p>Como utilizar hooks</p>
+              <span>Post Anterior</span>
+            </a>
+            <a className={styles.next} href="#none">
+              <p>Criando um app CRA do zero</p>
+              <span>Próximo post</span>
+            </a>
+          </div>
+          <Comments />
+          <button type="button">Sair do modo Preview</button>
         </article>
-        <Comments />
       </main>
     </>
   );
