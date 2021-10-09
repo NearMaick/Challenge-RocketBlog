@@ -19,6 +19,7 @@ import Comments from '../../components/Comments';
 interface Post {
   uid?: string;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -66,6 +67,19 @@ export default function Post({
     return <h1>Carregando...</h1>;
   }
 
+  const isPostEdited =
+    post.first_publication_date !== post.last_publication_date;
+
+  let postEdited;
+
+  if (isPostEdited) {
+    postEdited = format(
+      new Date(post.last_publication_date),
+      "'* editado em 'dd MMM yyyy', às 'H:m'",
+      { locale: ptBR }
+    );
+  }
+
   return (
     <>
       <Head>
@@ -96,7 +110,7 @@ export default function Post({
               </span>
             </div>
             <div>
-              <time>*editado em 19 out 2021, às 12:00</time>
+              <time>{postEdited}</time>
             </div>
           </div>
           <div className={styles.postContent}>
@@ -104,6 +118,7 @@ export default function Post({
               <Fragment key={cont.heading}>
                 <h3>{cont.heading}</h3>
                 <div
+                  // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{
                     __html: RichText.asHtml(cont.body),
                   }}
