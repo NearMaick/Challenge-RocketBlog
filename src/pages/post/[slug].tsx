@@ -1,5 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { RichText } from 'prismic-dom';
 import { Fragment } from 'react';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
@@ -16,6 +17,7 @@ import styles from './post.module.scss';
 import Comments from '../../components/Comments';
 
 interface Post {
+  uid?: string;
   first_publication_date: string | null;
   data: {
     title: string;
@@ -34,9 +36,15 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  prevPost: Post;
+  nextPost: Post;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  nextPost,
+  prevPost,
+}: PostProps): JSX.Element {
   // console.log(JSON.stringify(post, null, 2));
   // console.log(estimatedReadTime);
 
@@ -103,16 +111,24 @@ export default function Post({ post }: PostProps): JSX.Element {
               </Fragment>
             ))}
           </div>
-          <div className={styles.postLink}>
-            <a href="#none">
-              <p>Como utilizar hooks</p>
-              <span>Post Anterior</span>
-            </a>
-            <a className={styles.next} href="#none">
-              <p>Criando um app CRA do zero</p>
-              <span>Próximo post</span>
-            </a>
-          </div>
+          <section className={styles.postLink}>
+            {prevPost && (
+              <div>
+                <p>{prevPost.data.title}</p>
+                <Link href={`/post/${prevPost.uid}`}>
+                  <a>Post Anterior</a>
+                </Link>
+              </div>
+            )}
+            {nextPost && (
+              <div>
+                <p>{nextPost.data.title}</p>
+                <Link href={`/post/${nextPost.uid}`}>
+                  <a className={styles.next}>Próximo post</a>
+                </Link>
+              </div>
+            )}
+          </section>
           <Comments />
           <button type="button">Sair do modo Preview</button>
         </article>
@@ -147,9 +163,32 @@ export const getStaticProps: GetStaticProps = async content => {
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('posts', String(slug), {});
 
+  const previousPostResponse = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      orderings: '[document.first_publication_date]',
+      after: response.id,
+    }
+  );
+
+  const nextPostResponse = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      orderings: '[document.first_publication_date desc]',
+      after: response.id,
+    }
+  );
+
+  const prevPost = previousPostResponse.results[0] || null;
+  const nextPost = nextPostResponse.results[0] || null;
+
   return {
     props: {
       post: response,
+      nextPost,
+      prevPost,
     },
   };
 };
