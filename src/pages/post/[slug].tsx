@@ -13,6 +13,7 @@ import { useRouter } from 'next/router';
 import { getPrismicClient } from '../../services/prismic';
 
 import styles from './post.module.scss';
+import Comments from '../../components/Comments';
 
 interface Post {
   first_publication_date: string | null;
@@ -98,6 +99,7 @@ export default function Post({ post }: PostProps): JSX.Element {
             ))}
           </div>
         </article>
+        <Comments />
       </main>
     </>
   );
